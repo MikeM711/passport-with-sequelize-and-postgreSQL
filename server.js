@@ -2,6 +2,13 @@
 // 0.1. Assign the express module to a variable 'express'
 const express = require('express');
 
+// 1.1 Create a path to our models
+
+/* In COMPLETED "todo" project this is called "db"
+    Best to have our app/config/config.json in our .gitignore
+*/
+const models = require("./app/models");
+
 // 0.2. Initialize express and name it a variable 'app' 
 const app = express();
  
@@ -33,6 +40,15 @@ app.listen(PORT, (err) => {
 
   // if the error is undefined (server is working), let the developer know in the console 
   if (!err) {
+    // 1.2 If no error - Using the model path, look through all of our models and replicate them to the database
+    models.sequelize.sync()
+      // 1.3 Send messages to developer, for whether or not the database is in sync with our models
+      .then(() => {
+      console.log('Nice! Database looks fine')
+      })
+      .catch((err) => {
+      console.log(err, "Something went wrong with the Database Update!")
+      });
     console.log("Site is live");
   }
   // if the error IS defined (server is not working), let the developer know in the console, and send in the error message
