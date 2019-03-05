@@ -27,6 +27,7 @@ module.exports = function (sequelize, Sequelize) {
             First param = SINGULAR name of the database table
                 That singular name will become plural when inserted into postgres
             Second param = the sequelize model that represents the database table, as an object
+                AKA: attributes/fields object
     */
     
     const User = sequelize.define('user', {
