@@ -8,10 +8,14 @@ const express = require('express');
 */
 const models = require("./app/models");
 
+//3.2.1 All of the data (which are routes) from module.exports, inside app/routes/index.js
+const routes = require('./app/routes')
+
 // 3.0 import handlebars
 const exphbs = require('express-handlebars')
 
 // 0.2. Initialize express and name it a variable 'app' 
+// This normally comes after all initial imports
 const app = express();
 
 /* 
@@ -54,6 +58,9 @@ Use app.get() to "match and handle a specific route when requested"
 app.get('/', (req, res) => {
     res.send('Welcome to Passport with Sequelize');
 });
+
+// 3.2.2 Mount the routes as middleware at path /site
+app.use('/site', routes);
 
 // 0.3. Create a port
 /*
