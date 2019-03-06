@@ -8,8 +8,39 @@ const express = require('express');
 */
 const models = require("./app/models");
 
+// 3.0 import handlebars
+const exphbs = require('express-handlebars')
+
 // 0.2. Initialize express and name it a variable 'app' 
 const app = express();
+
+/* 
+3.1 Handlebars Middleware
+  1. File location
+  2. Register the engine
+  3. Use the handlebars engine from 2) as default engine
+*/
+
+/* 
+3.1 We are setting up our views inside ./app/views
+  Handlebars expects the views to be located in ./views
+  Let it know that the views folder is actually in a custom location
+*/
+app.set('views', './app/views')
+
+/* 
+3.2 Register the template engine
+  The following sets up express app to use .hbs as the file extension for views
+  1st param: hbs file extension
+  2nd param: the library that will render for the given extension
+*/
+app.engine('.hbs', exphbs({
+    /* 3.3 Use extname of '.hbs' to let handlebars know that the extension is NOT the default '.handlebars'
+      Rather the extension is '.hbs' instead of default */
+    extname: '.hbs'
+}));
+// 3.4 use the '.hbs' engine we just created (1st param of app.engine)as the default view engine of our app
+app.set('view engine', '.hbs');
  
 // 0.5 Send some text to the browser
 /* 
