@@ -39,7 +39,7 @@ app.engine('.hbs', exphbs({
       Rather the extension is '.hbs' instead of default */
     extname: '.hbs'
 }));
-// 3.4 use the '.hbs' engine we just created (1st param of app.engine)as the default view engine of our app
+// 3.4 use the '.hbs' engine we just created (1st param of app.engine) as the default view engine of our app
 app.set('view engine', '.hbs');
  
 // 0.5 Send some text to the browser
