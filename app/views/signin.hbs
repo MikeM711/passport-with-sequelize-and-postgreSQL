@@ -1,0 +1,29 @@
+<!-- 3.3.1 
+  The FULL sign-in page
+  You are able to successfully use this page once there is something in the database
+-->
+
+<!DOCTYPE html>
+<html>
+ 
+<head>
+    <title></title>
+</head>
+ 
+<body>
+  <!-- Same as before:
+    We will use this form to POST data to the URL of /signin, where router.post() will receive that information
+      Remember: this information should already be inside the database
+  -->
+  <!-- Will we need to change action="/signin" to "/site/auth/signin" ? -->
+    <form id="signin" name="signin" method="post" action="/signin">
+        <label for="email">Email Address</label>
+        <input class="text" name="email" type="text" />
+        <label for="password">Password</label>
+        <input name="password" type="password" />
+        <input class="btn" type="submit" value="Sign In" />
+    </form>
+ 
+</body>
+ 
+</html>

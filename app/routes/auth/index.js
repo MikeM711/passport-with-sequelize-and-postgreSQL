@@ -21,5 +21,10 @@ router.get('/signup', (req, res) => {
     res.render('signup');
 });
 
+// 3.3.1 Do the same for the sign in page - '/site/auth/signin'
+router.get('/signin', (req, res) => {
+    res.render('signin')
+})
+
 // We want app/routes/index.js to have access to our routes inside this file when it uses require()
 module.exports = router;
