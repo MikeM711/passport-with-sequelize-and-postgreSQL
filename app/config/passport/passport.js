@@ -14,6 +14,51 @@ module.exports = function (passport, user) {
     Set the instance to the variable: 'LocalStrategy' */
   const LocalStrategy = require('passport-local').Strategy;
 
+  // 4.2 serialize user - we enter here AFTER we called done() inside the "Verify Callback Function", with a DEFINED first or second parameter
+  // Serializing: This function will take a piece of information, from our record (database), and pass it on to "stuff it" in a cookie
+  passport.serializeUser(function (user, done) {
+    /* user is a big unorganized blob of database information
+      We only want to grab a PIECE of identifying information from that user - Just the ID
+      If we use: user.id is a PERFECT ID NUMBER!
+    */
+    /* we are saving the user 'id' to the session
+        done() will pass that 'id' off somewhere else, and we will "stuff" that 'id' in a cookie
+      The next stage: We want to jam 'user.id' into a cookie, and SEND IT to the browser */
+    done(null, user.id);
+  });
+
+  // 4.2 deserialize user
+  /* Since passport.serializeUser - we created a unique cookie, sent it to the browser, and the browser stored the cookie
+    When the cookie comes back to us from the browser, and on the server, we do the following: */
+  passport.deserializeUser(function (id, done) {
+    /* Inside here, it is our job to get the user from the 'id' parameter
+      With the help of the 'User' Sequelize Model, we search for that returning 'id' from the cookie 
+    */
+
+    /* use the sequelize method findById() and pass in the 'id'
+      This async task returns a promise, where success is either:
+        1) Finds the 'id'
+        2) Searches through the full database
+    */
+    User.findById(id).then(function (user) {
+
+      /* If 'user' is found in the database, use the done() method to go to the next stage of passport
+          The only way to go to the next stage is if either the 1st or 2nd parameter is defined
+        Inside the done() 
+          Param1: No error to report - so pass in 'null'
+            If string was passed into Param1, it will render to that screen on the POST URL
+          Param2: pass in the defined 'user' BUT with conscice database information: 'user.get()'
+            'user.get()' returns user "Row database information", where we can say something like user.firstname and we will get the 'firstname' value from the database
+      */
+      if (user) {
+        // GOAL: below will attach the 'user' property to the 'request' (req) object inside the routes !!!
+        done(null, user.get());
+      } else {
+        done(user.errors, null);
+      }
+    });
+  });
+
   // define our custom strategy with our instance of 'LocalStrategy'
 
   /* 'local-signup' is the name of our Local Strategy 
@@ -53,7 +98,6 @@ module.exports = function (passport, user) {
       Local Strategy will will find credentials in the parameters: 'email' (modified from the default 'username') and 'password'
       We can use 'req' because set 'passReqToCallback: true' above */
     function (req, email, password, done) {
-      console.log('here is req: ', req)
       // here, we have access to all of the user's form data
 
       /* A hashed password generating function:
@@ -90,11 +134,14 @@ module.exports = function (passport, user) {
             Therefore, this information CANNOT be used, as it is taken */
 
           /* done() supplies Passport with the user (2nd param) that authenticated.
+            Inside passport, the function done() (if the 1st or 2nd param is defined) basically means "go to the next stage"
             In our case, we will supply with 'false' (2nd param), indicating authentication failure
               Along with that, we will display a flash message prompting the user to try again
-            1st param is always 'null' for some reason
+            1st param is typically 'null'
+              1st param is actually the error, if there is one
+              If 1st param is a string, the URL will render that string to the user on the browser
           */
-            
+         
           return done(null, false, {
             message: 'That email is already taken'
           });
@@ -171,6 +218,10 @@ module.exports = function (passport, user) {
                 /* At this point, this user has valid credentials
                   done() supplies Passport with the user that authenticated - The 'newUser' "row information"
                 */
+               /* After calling done() with a DEFINED second parameter - the next stage is to serialize the user
+                Execution will enter passport.serialize after this return (4.2)
+                  Theory: execution will also enter if 1st param was definined (an error)
+               */
                 return done(null, newUser);
               }
 

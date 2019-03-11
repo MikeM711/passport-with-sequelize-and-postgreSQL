@@ -43,6 +43,7 @@ router.get('/signin', (req, res) => {
         Second param: An object of redirects and flash message options
 */
 router.post('/signupPOST', passport.authenticate('local-signup', {
+    // 4.2 The below occurs when done() method is called inside deserialize with a defined 1st or 2nd param
     successRedirect: '/dashboard',
     failureRedirect: '/signup'
     }
