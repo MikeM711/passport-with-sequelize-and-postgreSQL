@@ -34,7 +34,14 @@ router.get('/signin', (req, res) => {
     We will need to change this to a *protected* route
 */
 router.get('/dashboard', (req,res) => {
-    res.render('dashboard')
+
+    // 4.4 specific user - database "row" information
+    const user = req.user
+    /* If no "logout", user database information will be stored until another 'signup' is requested
+        Meaning: the cookie session will not end until signup) */
+
+    // 4.4 param2 sends specific user database information to the (param1) 'dashboard' view to use !!!
+    res.render('dashboard',{user})
 })
 
 
