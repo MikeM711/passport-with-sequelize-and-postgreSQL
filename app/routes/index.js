@@ -13,7 +13,8 @@ const router = express.Router();
 If you want express to look at a SPECIFIC file, use:
     ./auth/auth = "Express will look for auth.js inside 'auth' folder"
 */
-router.use('/auth', require('./auth'));
+// changed to blank
+router.use('/', require('./auth'));
 
 /* Frontend GET, POST, UPDATE, DELETE routes: 
     router.use('/todo', require('./todo')); */

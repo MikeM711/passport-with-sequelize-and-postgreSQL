@@ -16,8 +16,8 @@ The FULL view of the signup page
         'method' and 'action' are VERY important
             We will use this form to POST data to the URL of /signup, where router.post() will receive that information
     -->
-    <!-- Will we need to change action="/signup" to "/site/auth/signup" ? -->
-    <form id="signup" name="signup" method="post" action="/signup">
+    <!-- 4.1 Make sure the action URL path = the authenticated path in "routes"  -->
+    <form id="signup" name="signup" method="post" action="/signupPOST">
 
         <!-- If <input> is not nested inside of <label>:
                 <label> 'for' = <input> 'name'
@@ -25,6 +25,7 @@ The FULL view of the signup page
             If it is nested:
                 Only <input> needs 'name' and 'type' properties
         -->
+        <!-- 4.1 These <input> name attributes are linked to the LocalStrategy values of the "Verify Callback Function" inside passport.js' -->
         <label for="email">Email Address</label>
         <input class="text" name="email" type="email" />
         <label for="firstname">Firstname</label>

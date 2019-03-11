@@ -2,7 +2,8 @@
 
 const express = require('express');
 
-// const passport = require('passport');
+// 4.1 Allow this file to use 'passport'
+const passport = require('passport');
 // const { User } = require('../../models');
 // const hashPassword = require('../../utils/hashPassword');
 
@@ -25,6 +26,27 @@ router.get('/signup', (req, res) => {
 router.get('/signin', (req, res) => {
     res.render('signin')
 })
+
+
+/* 4.1 In the future we can make the POST request to '/signup', along with the GET request to '/signup'
+    It's fine to have both at the same path
+    Just make sure that signup.hbs form action 'path' matches the below POST path
+*/
+
+/* 4.1 Instead of (req,res) the callback function will be passport.authenticate()
+    First param: The URL of the POST route must match the URL of the signup.hbs action: '/signupPOST'
+    Second param: "Passport provides an authenticate() function, which is used as route middleware to authenticate requests."
+        Use the passport middleware for authentication here
+        First param: the local strategy custom name (if there is any)
+            Inside passport.js of app/config/passport, we created a Local Strategy named: 'local-signup'
+            We want to use that 'local-signup' block of code to authenticate our /signupPOST
+        Second param: An object of redirects and flash message options
+*/
+router.post('/signupPOST', passport.authenticate('local-signup', {
+    successRedirect: '/dashboard',
+    failureRedirect: '/signup'
+    }
+));
 
 // We want app/routes/index.js to have access to our routes inside this file when it uses require()
 module.exports = router;

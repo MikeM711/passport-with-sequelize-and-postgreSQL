@@ -24,10 +24,16 @@ module.exports = function (sequelize, Sequelize) {
     /* 
     The name of the const variable will be the name of our model (capitalized & singular)
         Set our model = sequelize.define() to define mappings between model and table
-            First param = SINGULAR name of the database table
+            First param = SINGULAR name of the database table, as a string
                 That singular name will become plural when inserted into postgres
+                *This define() string is also the name of this model inside "models" index.js* 
+                    So, when we require the "models" index.js as 'modelsRequire', we can say modelsRequire.ModelDefineStringName to have access to a particular model/table! (index.js creates this connection for us)
+                    Now that we have access to a specific model, we can use Sequelize Model methods of editing and searching stuff in the database!
+                If we were to change the string name, we will AUTOMATICALLY add a table to the database
             Second param = the sequelize model that represents the database table, as an object
                 AKA: attributes/fields object
+    If we say: sequelize.define('myTableofData', ...)
+        And we saved - postgres will automatically create a table called: myTableofDatas
     */
     
     const User = sequelize.define('user', {
@@ -112,6 +118,7 @@ module.exports = function (sequelize, Sequelize) {
             model definition: When a user logs in, they will be 'active' 
         */
 
+        // Just for visual purposes - looks like the completed todo list doesn't even use this
         status: {
             type: Sequelize.ENUM('active', 'inactive'),
             defaultValue: 'active'
