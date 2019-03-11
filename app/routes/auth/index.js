@@ -27,6 +27,16 @@ router.get('/signin', (req, res) => {
     res.render('signin')
 })
 
+// 4.3 Dashboard route
+
+/* This is where the redirect will take the user if authentication, from '/signupPOST', is successful
+    NOTE: This is a *Non-protected* dashboard route - Even users that AREN'T logged in, can access it (not good)
+    We will need to change this to a *protected* route
+*/
+router.get('/dashboard', (req,res) => {
+    res.render('dashboard')
+})
+
 
 /* 4.1 In the future we can make the POST request to '/signup', along with the GET request to '/signup'
     It's fine to have both at the same path
