@@ -44,6 +44,19 @@ router.get('/dashboard', (req,res) => {
     res.render('dashboard',{user})
 })
 
+// 4.4 Logout route handler
+router.get('/logout', (req, res) => {
+    /* "To store or access session data, simply use the request property 'req.session',
+        which is (generally) serialized as JSON by the store, 
+        so nested objects are typically fine."
+    */
+    /* To end a session, use: req.session.destroy(callback)
+        If successful, we will redirect to '/' - the homepage
+     */
+    req.session.destroy((err) => {
+        res.redirect('/');
+    })
+ })
 
 /* 4.1 In the future we can make the POST request to '/signup', along with the GET request to '/signup'
     It's fine to have both at the same path
