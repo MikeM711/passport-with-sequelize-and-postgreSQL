@@ -28,10 +28,10 @@ router.get('/signin', (req, res) => {
 })
 
 /* 4.6 A second callback function for our '/dashboard' route handler
-    This callback is just "extra criteria" for execution to reach the '/dashboard' render method
+    This callback is just "extra criteria" for execution to reach the 'dashboard' view render method
         We will have this callback as the FIRST callback
-        While rendering '/dashboard' will be the SECOND (last) callback
-            We are basically fitting this callback behind the "'/dashboard' render" callback
+        While rendering 'dashboard' view will be the SECOND (last) callback
+            We are basically fitting this callback behind the "'dashboard' view render" callback
     If we want to, we can simply put this criteria inside the existing callback
         Having 2 callbacks seems more organized though
 */
@@ -45,10 +45,10 @@ function isLoggedIn(req, res, next) {
     if (req.isAuthenticated())
         /* if 'isAuthenticated' is 'defined', enter the next callback
             This "extra criteria" makes this '/dashboard' route protected!
-            The next callback is the callback we had initially (which "was" unprotected) - it simply renders out '/dashboard'
+            The next callback is the callback we had initially (which "was" unprotected) - it simply renders out the view 'dashboard'
         */
         return next();
-    // if 'isAuthenticated' is 'undefined', redirect the user to '/signin' page
+    // if 'isAuthenticated' is 'undefined', redirect the user to '/signin' URL page
     res.redirect('/signin');
 }
 
@@ -58,7 +58,7 @@ function isLoggedIn(req, res, next) {
     NOTE: This is a *Non-protected* dashboard route - Even users that AREN'T logged in, can access it (not good)
     We will need to change this to a *protected* route
 */
-/* 4.6 We create a new callback, and insert it behind the callback that renders the '/dashboard' view to the browser (req,res)=>{...}
+/* 4.6 We create a new callback, and insert it behind the callback that renders the 'dashboard' view to the browser (req,res)=>{...}
     This extra callback "criteria" caused this route to become a *protected* route */
 router.get('/dashboard', isLoggedIn, (req,res) => {
 
