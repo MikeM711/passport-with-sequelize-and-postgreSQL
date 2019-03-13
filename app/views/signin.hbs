@@ -12,11 +12,12 @@
  
 <body>
   <!-- Same as before:
-    We will use this form to POST data to the URL of /signin, where router.post() will receive that information
+    We will use this form to POST data to the URL of /signinPOST, where router.post() will receive that information
+      'action' path attribute should equal router.post() path attribute in "routes"
       Remember: this information should already be inside the database
   -->
-  <!-- Will we need to change action="/signin" to "/site/auth/signin" ? -->
-    <form id="signin" name="signin" method="post" action="/signin">
+    <!-- 4.7 These <input> name attributes are linked to the LocalStrategy values of the "Verify Callback Function" inside passport.js' -->
+    <form id="signin" name="signin" method="post" action="/signinPOST">
         <label for="email">Email Address</label>
         <input class="text" name="email" type="text" />
         <label for="password">Password</label>

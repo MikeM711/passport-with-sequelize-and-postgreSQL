@@ -63,6 +63,7 @@ function isLoggedIn(req, res, next) {
 router.get('/dashboard', isLoggedIn, (req,res) => {
 
     // 4.4 specific user - database "row" information
+    // 'req.user' is equal to whatever was the 2nd parameter of the done() method inside deserializeUser
     const user = req.user
     /* If no "logout", user database information will be stored until another 'signup' is requested
         Meaning: the cookie session will not end until signup) */
@@ -88,6 +89,8 @@ router.get('/logout', (req, res) => {
     })
  })
 
+
+// 4.1 Create a route handler for when a user, inside the signup.hbs "view", clicks the "submit" of the form, and the form 'action' begins
 /* 4.1 In the future we can make the POST request to '/signup', along with the GET request to '/signup'
     It's fine to have both at the same path
     Just make sure that signup.hbs form action 'path' matches the below POST path
@@ -104,8 +107,20 @@ router.get('/logout', (req, res) => {
 */
 router.post('/signupPOST', passport.authenticate('local-signup', {
     // 4.2 The below occurs when done() method is called inside deserialize with a defined 1st or 2nd param
+        // defined 1st param = error (failure), defined 2nd param = user data (success)
     successRedirect: '/dashboard',
     failureRedirect: '/signup'
+    }
+));
+
+// 4.7 - similar to '/signupPOST' handler
+// Create a route handler for when a user, inside the signin.hbs "view", clicks the "submit" of the form, and the form 'action' begins
+// Again, just like /signupPOST: the router.post() path parameter should equal the 'action' path attribute in the signin.hbs "view"
+router.post('/signinPOST', passport.authenticate('local-signin', {
+    // 4.7 The below occurs when done() method is called inside deserialize with a defined 1st or 2nd param
+        // defined 1st param = error (failure), defined 2nd param = user data (success)
+    successRedirect: '/dashboard',
+    failureRedirect: '/signin'
     }
 ));
 
