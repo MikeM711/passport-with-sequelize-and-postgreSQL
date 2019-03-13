@@ -16,7 +16,41 @@ module.exports = function (passport, user) {
 
   // 4.2 serialize user - we enter here AFTER we called done() inside the "Verify Callback Function", with a DEFINED first or second parameter
   // Serializing: This function will take a piece of information, from our record (database), and pass it on to "stuff it" in a cookie
+
+  /* 
+    Cookies:
+      Cookies & Authentication
+        ** Cookies tell the website that you are logged in, that you are authenticated **
+          Specifically: "A token allows for authentication, this token is stored in a cookie, and is sent back with each subsequent request" 
+          Now that the browser has this cookie, every time the browser makes a request to your website (server) in the future, 
+            it will SEND the cookie back to the server, with the token as well!
+          "The server receives every request that requires authentication and uses the token to authenticate the user (!) and return the requested data back to the client application."
+        For example, on the completion of an authentication process you will set an encrypted cookie containing details of the user to be presented with each subsequent request. 
+
+      As long as we go through all of the proper done() methods (regardless if the user information is correct or not, and errors are 'null'),
+        the user will be authenticated, telling the whole application that - isAuthenticated() = 'true'
+      Serialization sends out user info to "stuff" into a cookie
+      Deserialization provides us with that same ID from inside the cookie, which is the ID of the authenticated user (database "row" information)
+        When completed, we have a cookie stored in our browser with an authentication token and user id
+          If we didn’t have correct user id info, we will STILL have a cookie with an authentication token
+        Inside deserialize, we found the matching 'id' value in our database, and we put the CONCISE "database row information" as the 2nd param in the done() method
+          From there, we can get this "database row information" off of req.user for this "concise" DB row information AND we enter the OBJECT portion (redirect/flash messages) of the strategy in "routes"
+            req.user = 2nd param of deserializeUser done() method
+            EXPERIMENT: if 2nd param of deserializeUser done() = 24, then req.user in all "routes" = 24
+
+      Extra notes:
+        On any website that we are "logged in", if we delete the cookie, we log out - we aren't authenticated 
+          Deleted cookie = deleted access token
+        Sessions are usually implemented using cookies
+        For our app - we know that we are authenticated when we redirect to /dashboard!
+      When it comes to sending data from a server:
+        "Data cannot be trusted just like any client input can't, 
+          so in practice people often just send a session ID and store the actual data that you might not want people to tamper with on the server side."
+    tl;dr: all cookies have a token for authentication, regardless if there is any 'user_id' "stuffed" in the cookie
+  */
+ 
   passport.serializeUser(function (user, done) {
+
     /* user is a big unorganized blob of database information
       We only want to grab a PIECE of identifying information from that user - Just the ID
       If we use: user.id is a PERFECT ID NUMBER!
@@ -24,6 +58,11 @@ module.exports = function (passport, user) {
     /* we are saving the user 'id' to the session
         done() will pass that 'id' off somewhere else, and we will "stuff" that 'id' in a cookie
       The next stage: We want to jam 'user.id' into a cookie, and SEND IT to the browser */
+      /* EXPERIMENT: if we say 'done('serialize error', false);' signupPOST URL will say: 'serialize error'
+        Dashboard does not work! - Therefore, user has not been authenticated yet
+          Makes sense - cookie has not been created yet
+          On refresh, the site will work as if the user has not logged in
+      */
     done(null, user.id);
   });
 
@@ -47,17 +86,31 @@ module.exports = function (passport, user) {
         Inside the done() 
           Param1: No error to report - so pass in 'null'
             If string was passed into Param1, it will render to that screen on the POST URL
-          Param2: pass in the defined 'user' BUT with conscice database information: 'user.get()'
+          Param2: pass in the defined 'user' BUT with concise database information: 'user.get()'
             'user.get()' returns user "Row database information", where we can say something like user.firstname and we will get the 'firstname' value from the database
       */
       if (user) {
         // GOAL: below will attach the 'user' property to the 'request' (req) object inside the routes !!!
+
+        /* EXPERIMENT: if we say: done('deserialize error', false); 
+          We end up on /dashboard URL with string 'deserialize error', string will show up on EVERY page
+          Since this experiment landed on /dashboard, we can assume that the user has been psuedo-authenticated (?) 
+            However, the passport "flow" has not been completed (we need to get out of deserialization)
+        */
+        /* If second parameter is 'true' we can access the whole app as isAuthenticated() = true! 
+          We just can't receive proper user information that way */
+        // When done() is called with a defined second parameter, we enter the OBJECT of the local strategy in our route
+        // WHATEVER IS THE 2ND PARAMETER IS = 'req.user' in "routes"
         done(null, user.get());
       } else {
         done(user.errors, null);
       }
     });
   });
+
+  /* OUR LOCAL STRATEGIES (2) BELOW */
+
+  /* (1) LOCAL-SIGNUP STRATEGY*/
 
   // define our custom strategy with our instance of 'LocalStrategy'
 
@@ -235,4 +288,67 @@ module.exports = function (passport, user) {
 
   ));
 
+  /* 4.7 (2) LOCAL-SIGNIN STRATEGY*/
+
+  // copy/paste beginning of the First strategy:
+
+  passport.use('local-signin', new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password',
+      passReqToCallback: true
+    },
+    function (req, email, password, done) {
+      // end of copy/paste
+
+      /* Function will compare "plain text password" with "hash" 
+        return 'true' if there's a comparison, 'false' if no comparison
+      */
+      var isValidPassword = function (userpass, password) {
+        // below will instantly provide us with 'true' or 'false'
+        // bCrypt.compareSync(plainTextPW, hash)
+        return bCrypt.compareSync(password, userpass);
+      }
+
+      // Can we find the email in the database?
+      User.findOne({
+        where: {
+          email: email
+        }
+      }).then(function (user) {
+        // If no 'user' is found in the database, the user does not exist
+        if (!user) {
+          return done(null, false, {
+            message: 'Email does not exist'
+          });
+        }
+
+        // Exeuction is here if a user is found
+
+        /* if the "plain text password" and "hash" do NOT compare inside 'comparesync' of the 'isValidPassword' function, 
+          the password the user has typed in is incorrect */
+        if (!isValidPassword(user.password, password)) {
+          return done(null, false, {
+            message: 'Incorrect password.'
+          });
+        }
+
+        // Execution is here if user is found AND password matches
+
+        // acquire ALL of the user info from the database "row"
+        const userinfo = user.get();
+        // send ALL of the user info to the next stage of passport, which is inside passport.serialize
+        return done(null, userinfo);
+
+      }).catch(function (err) {
+        // Me - I think execution ends up here if it can't find the database table to search?
+
+        console.log("Error:", err);
+
+        return done(null, false, {
+          message: 'Something went wrong with your Signin'
+        });
+      });
+    }
+  ));
 }
