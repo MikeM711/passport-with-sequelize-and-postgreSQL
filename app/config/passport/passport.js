@@ -232,10 +232,13 @@ module.exports = function (passport, user) {
 
           User.create(data)
             .then(function (newUser) {
+              /* At this point, if "newUser" is defined - the database table has OFFICIALLY added a row of information for the new user!
+                  Execution lands here when we passed all of our constraints and validations inside our model!
+                  Remember, the "database" constraints/validations are an exact copy of the "model" constraints/validations 
+              */
 
               /* The last part of our strategy:
                 Was the user successfully added to the database?
-                In other words, were all of the required fields filled out?
               */
 
               /* The 'create' method is completed
@@ -255,11 +258,7 @@ module.exports = function (passport, user) {
               */
               if (!newUser) {
 
-                /* Execution may end up here for following situation:
-                  An email was not found (good), BUT we have mandatory fields that MUST be filled PROPERLY (bad - if you didn't do this)
-                    user.js "model" may have some required validation that must be met in order to be placed inside the database
-                      Example: 'notEmpty: true' inside some field of user.js model
-                */
+                // Not exactly sure how execution may end up here if it didn't add anything to the database
                 return done(null, false);
               }
 
@@ -278,7 +277,28 @@ module.exports = function (passport, user) {
                 return done(null, newUser);
               }
 
-          });
+            /* 5.1 Thanks to debugger, I found where I needed my "catch"
+              For the case if email is not "@something.com" 
+                We can also use type="email" for email input field in the "view"*/
+          }).catch((err) => {
+            /* Execution is in here when we get a database validation error, 
+              these "errors" are our validations which we set up in our models! 
+              We must have a .catch() so that the application doesn't crash, and we can move the error along*/
+            console.log('Database validation error: ', err)
+
+            /* 5.1 2 ways of displaying errors:
+              1) The first parameter you provide to done() is what you want to show on screen, if you want to show an error that way
+                We immediately enter '/signinPOST' URL, and load the page with the variable of the 1st parameter
+                  We don't Use ANY redirect, we just use this URL '/signinPOST' to display the error
+                In our case: we don't need this, we just want to be redirected to the signin, so we will use 'null' 
+              2) With the help of connect-flash we can send messages so that they are accessible inside our routes
+                3rd param syntax: req.flash('arrayName','message stored in array')
+                This time, we actually get to the 'failureRedirect', unlike 1), and we have extra req info that we can use as well!
+            */
+            done(null, false, req.flash('messages','error, signup is incorrect!'));
+            // After the above 'done()', execution will immediately end up inside the '/signinPOST' handler as "failureRedirect"
+
+          })
 
         }
 

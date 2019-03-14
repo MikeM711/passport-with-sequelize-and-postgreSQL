@@ -1,3 +1,4 @@
+// NOTES: Along with this repo, check out "Google OAuth and Passport" "Overall Themes" section
 
 // 0.1. Assign the express module to a variable 'express'
 const express = require('express');
@@ -44,6 +45,9 @@ tl;dr for user sessions, and reads & writes cookies on req/res
 */
 const session = require('express-session')
 // 4.1 end of authentication packages
+
+// 5.1 For being able to receive messages from the 3rd parameter of done() for passport.js
+var flash = require('connect-flash');
 
 // 0.2. Initialize express and name it a variable 'app' 
 // This normally comes after all initial imports
@@ -153,6 +157,9 @@ This middleware is a Passport Strategy invoked on every request.
   ** If it finds a serialised user object in the session, it will consider this request authenticated. **
   */
 app.use(passport.session()); // persistent login sessions
+
+// 5.1 Set up flash-connect in our application
+app.use(flash());
 
 // 0.5 Send some text to the browser
 /* 

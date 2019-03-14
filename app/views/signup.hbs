@@ -26,16 +26,26 @@ The FULL view of the signup page
                 Only <input> needs 'name' and 'type' properties
         -->
         <!-- 4.1 These <input> name attributes are linked to the LocalStrategy values of the "Verify Callback Function" inside passport.js' -->
+        <!-- For email: We receive warning prompts if user inputs no email 
+            This is because "email" input has attribute: type="email" -->
+        <!-- 5.1 In order for execution to enter "local-strategy", we need the user to know that both email & password is REQUIRED
+            Add 'required' attribute to input labels -->
+        <!-- Want to get the values of these form inputs?
+            Acquire bodyParser, so we can say: 'req.body.formInputNameAttribute' in the callback of our "routes"!
+            For passport: make sure that we modify the default to: {passReqToCallback: true}
+        -->
         <label for="email">Email Address</label>
-        <input class="text" name="email" type="email" />
+        <input class="text" name="email" type="email" required />
         <label for="firstname">Firstname</label>
         <input name="firstname" type="text" />
         <label for="lastname">Lastname</label>
         <input name="lastname" type="text" />
         <label for="password">Password</label>
-        <input name="password" type="password" />
+        <input name="password" type="password" required/>
         <input class="btn" type="submit" value="Sign Up" />
     </form>
+    <!-- Print out the error message to the user-->
+    <h1>{{errorMessage}}</h3>
 
 </body>
 
