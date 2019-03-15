@@ -14,8 +14,12 @@ The FULL view of the signup page
     <!-- Our signup form that will have user input
         I don't believe 'id' or 'name' will be a big deal
         'method' and 'action' are VERY important
-            We will use this form to POST data to the URL of /signup, where router.post() will receive that information
+            We will use this form to POST data to the URL of /signupPOST, where router.post() will receive that information
     -->
+
+    <!-- 'name' and 'id' of the form really isn't that important -->
+    <!-- 'class' attributes on input fields aren't that important either - unless you want CSS -->
+
     <!-- 4.1 Make sure the action URL path = the authenticated path in "routes"  -->
     <form id="signup" name="signup" method="post" action="/signupPOST">
 
@@ -30,6 +34,7 @@ The FULL view of the signup page
             This is because "email" input has attribute: type="email" -->
         <!-- 5.1 In order for execution to enter "local-strategy", we need the user to know that both email & password is REQUIRED
             Add 'required' attribute to input labels -->
+
         <!-- Want to get the values of these form inputs?
             Acquire bodyParser, so we can say: 'req.body.formInputNameAttribute' in the callback of our "routes"!
             For passport: make sure that we modify the default to: {passReqToCallback: true}

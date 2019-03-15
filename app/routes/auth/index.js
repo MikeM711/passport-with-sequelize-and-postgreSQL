@@ -7,6 +7,10 @@ const passport = require('passport');
 // const { User } = require('../../models');
 // const hashPassword = require('../../utils/hashPassword');
 
+// 5.2 get 'todo' model from the "models" index.js
+// { todo } is the same as model.todo
+const { todo } = require('../../models')
+
 const router = express.Router();
 
 /* render the 'signup' handlebars view to the '/signup' route:
@@ -92,14 +96,33 @@ router.get('/greet', (req,res) => {
     This extra callback "criteria" caused this route to become a *protected* route */
 router.get('/dashboard', isLoggedIn, (req,res) => {
 
-    // 4.4 specific user - database "row" information
+    // 4.4 specific user - database "row" information - from the "user" DB table
     // 'req.user' is equal to whatever was the 2nd parameter of the done() method inside deserializeUser
     const user = req.user
     /* If no "logout", user database information will be stored until another 'signup' is requested
         Meaning: the cookie session will not end until signup) */
 
-    // 4.4 param2 sends specific user database information to the (param1) 'dashboard' view to use !!!
-    res.render('dashboard',{user})
+    // 5.2 Fetch ALL of the todos (All "database row information" from the "todos" DB table
+    todo.findAll()
+        .then((allTodos) => {
+
+            // initialize an array
+            let TodoList = [];
+
+            // iterate through 'allTodos' - which is the "database information of every row", and push to array
+            for (let i = 0; i < allTodos.length; i++) {
+                TodoList.push(allTodos[i].todo)
+            }
+
+            // render the 'dashboard' "view", with variables that you would like the view to have access to
+            res.render('dashboard', { user, TodoList })
+        })
+        .catch((err) => {
+            /* Execution will land here if database is [null]
+                Execution will NOT land here if database is simply empty */
+            console.log("Error finding all todos: ", err)
+        })
+        
 })
 
 // 4.5 Logout route handler

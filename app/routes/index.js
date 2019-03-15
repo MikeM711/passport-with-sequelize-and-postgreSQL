@@ -3,18 +3,22 @@ The router method we want to use is found inside the express module, we need to 
     specifically: express.Router()
 */
 
+// 5.2 This file is responsible for combining all of our routes together, in a single source
+
 const express = require('express');
 const router = express.Router();
-
-// to use my signup, you must use '/auth' - '/site/auth'
 
 /* If file address is to a folder, express will look for index.js
     ./auth = ./auth/index
 If you want express to look at a SPECIFIC file, use:
     ./auth/auth = "Express will look for auth.js inside 'auth' folder"
 */
-// changed to blank
+
 router.use('/', require('./auth'));
+
+/* 5.2 In order for the application to use the routes inside of the "todo" folder, 
+    we need to require the path (just like 'auth'), with the line below: */
+router.use('/', require('./todo'));
 
 /* Frontend GET, POST, UPDATE, DELETE routes: 
     router.use('/todo', require('./todo')); */
