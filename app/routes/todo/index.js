@@ -18,11 +18,24 @@ router.post('/todoPOST',(req,res) => {
 
   // Create the data that will be inserted into the "todos" table, in the database
   // make sure syntax matches the database - databaseField: yourValues
+
+  /* 7. Thanks to passport completing its entire system,
+    AND making the 2nd parameter of done() inside deserializeUser defined AND equal to the particular 'user' "row information" in the database)
+      We have access to that "row information" on 'req.user'
+        Whether that information is correct or not - in our case, it is correct
+    Below is our "id" from the "users" table, that we will store inside the "userId" field in the "todos" table! 
+  */
+  const { id } = req.user;
+
+  /* 7. The new database field: 'userId'
+    This 'userId' field will be equal to the 'id' of the user who made it!
+  */
   const data = {
-    todo: req.body.todo
+    todo: req.body.todo,
+    userId: id
   }
 
-  // Use sequelize Model.create({obj})
+  // Add the new 'todo' "row information" to the database - Use sequelize Model.create({obj})
   todo.create(data)
     .then((todo) => {
       /* Execution is here if we have successfully added a 'todo' to the database
