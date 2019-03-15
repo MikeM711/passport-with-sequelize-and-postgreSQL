@@ -10,6 +10,35 @@
     <h5>Hurray! you are logged in.</h5>
     <!-- Object passed from the second parameter of res.render() in "routes"-->
     <h1>{{user.firstname}}</h3>
+    <a href="/logout" class="button">Want to logout?</a>
+
+    <!-- 5.2 Send a todo to the database, and list them out below-->
+    <h1>Create a Todo below!</h1>
+
+    <!-- 'name' and 'id' of the form really isn't that important -->
+    <!-- 'class' attributes on input fields aren't that important either - unless you want CSS -->
+    <!-- On submit: we immediately enter deserializeUser of passport
+        and start finding the user id, User.findById(id),
+        Once execution leaves deserialization, holding particular user information, we enter the '/todoPOST' route handler 
+            Execution will find itself inside of app/routes/todo, where this route handler resides
+    -->
+    <form id="todo" name="todo" method="post" action="/todoPOST">
+        <label for="todo">To Do</label>
+        <input class="text" name="todo" type="text" required/>
+        <input class="btn" type="submit" value="Submit your To Do" />
+    </form>
+
+    <h1> Your todo list:</h1>
+
+    <!-- 5.2 Use handlebars syntax to iterate through array, and display all of its items-->
+    {{#each TodoList}}
+        <p>{{this}}</p>
+    {{/each}}
+
+    <!-- 
+        To display the FULL variable, use the following:
+        <p>{{TodoList}}</p>
+    -->
  
 </body>
  

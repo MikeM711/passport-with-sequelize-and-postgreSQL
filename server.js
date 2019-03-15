@@ -170,9 +170,15 @@ Use app.get() to "match and handle a specific route when requested"
     The callback provides 'req' request and 'res' response for us to use
     We will use the 'send' method that is attached to 'res' to display some text on the browser at path '/'
 */
-app.get('/', (req, res) => {
+
+app.get('/introduction', (req, res) => {
     res.send('Welcome to Passport with Sequelize');
 });
+
+// 5.2 New home page that has 'sign in' and 'sign up' anchor tags - just to make things easier
+app.get('/', (req,res) => {
+  res.render('homepage');
+})
 
 // 3.2.2 Mount the routes as middleware at path /site
 // changed to blank
