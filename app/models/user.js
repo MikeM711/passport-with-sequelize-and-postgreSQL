@@ -44,7 +44,7 @@ module.exports = function (sequelize, Sequelize) {
         And we saved - postgres will automatically create a table called: myTableofDatas
     */
     
-    const User = sequelize.define('user', {
+    const UserExport = sequelize.define('user', {
 
         /* Database field structure:
             - All have data types
@@ -143,6 +143,13 @@ module.exports = function (sequelize, Sequelize) {
         email: {
             type: Sequelize.STRING,
             allowNull: false,
+            // 7. We can add the below constraint, if you like
+            unique: true,
+
+            /* 7. Inside our database, under the "user" table:
+                Inside "constraints" we will find a users_email_key "unique constriant"
+            */
+
             /* SITUATIONS:
             1) If there is no 'isEmail' validation inside "validate object" (bad) AND signup.hbs email input attribute is 'type="text"' (bad):
                 For an email with simple text: The user can sign up (bad)
@@ -213,10 +220,29 @@ module.exports = function (sequelize, Sequelize) {
         /*
         Sequelize will then automatically add the attributes 'createdAt' and 'updatedAt' to this model, and thus, to the database
         */
+        })
+        // 7. Outside of sequelize.define()
 
-    });
+        /* 7. (Option #1) Using sequelize "Associations", the below '3 lines' will create a "userId" column inside the "todos" table
+            It will ALSO create a "todos_userId_fkey" 'Foreign Key (FK)' constraint in our "todo" model for this "userId" field!
+
+            Abstract: The field that is being created is: "{parentTable} + {parentPrimaryKey}" column inside the "{childTable}" database table, with an F.K. for that field
+              {parentTable} (independent) = users
+              {parentPrimaryKey} = id (which becomes "Id" in the new field)
+              {childTable} (dependent) = todos
+            Specific: "usersId" inside "todos" table
+
+            (Option #2) - found inside of "todo" Model
+            
+            THEORY: We could have made a new field in the above object (2nd param of sequelize.define()), however, it is best practice to use constraints at every opportunity
+              We want the database to protect itself from the possibility of corrupted data
+        */
+
+        UserExport.associate = (models) => {
+          UserExport.hasMany(models.todo)
+        }
 
     // Return the variable out of the function
-    return User;
+    return UserExport;
 
 }

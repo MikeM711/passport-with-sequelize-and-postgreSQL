@@ -33,9 +33,20 @@ module.exports = function (sequelize, Sequelize) {
         Sequelize will then automatically add the attributes 'createdAt' and 'updatedAt' to this model, and thus, to the database
         */
 
-    });
+      // End of fields that we create
 
-    // Return the variable out of the function
-    return TodoExport;
+      })
+      // 7. Outside of sequelize.define()
+
+    /* 7. (Option #2) Using sequelize "Associations", the below line will ALSO create a "userId" column inside "todos" table
+      (Option #1) - found inside of "user" Model
+    */
+      
+    //   TodoExport.associate = (models) => {
+    //     TodoExport.belongsTo(models.user)
+    //   }
+
+  // Return the variable out of the function
+  return TodoExport;
 
 }
