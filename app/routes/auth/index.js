@@ -102,16 +102,29 @@ router.get('/dashboard', isLoggedIn, (req,res) => {
     /* If no "logout", user database information will be stored until another 'signup' is requested
         Meaning: the cookie session will not end until signup) */
 
-    // 5.2 Fetch ALL of the todos (All "database row information" from the "todos" DB table
-    todo.findAll()
-        .then((allTodos) => {
+    // 5.2 (Replaced by 8.) Fetch ALL of the todos (All "database row information" from the "todos" DB table with model.findAll()
+    /* 8. (updated from 5.2) We will fetch all todos created by a particular 'user id' that created them 
+        Get all "database row information" based on the 'id' of the current user - that matches the "todos" table 'userID' field
+        We are able to get this information from the "todos" table "database row", 
+            because we have a value for the 'userId' field (req.user.id) as part of the "database row information" that we have sent to the database('Model.create({data})'), 
+            inside the POST of '/todoPOST' route handler
+        We will use a specific form of 'model.findAll()' - where userId of "todos" table matches the value of the 'id' of the "users" table (req.user.id)
+    */
+    todo.findAll({
+        where: {
+            userId: user.id
+        }
+    })
+        .then((userTodos) => {
 
             // initialize an array
             let TodoList = [];
 
-            // iterate through 'allTodos' - which is the "database information of every row", and push to array
-            for (let i = 0; i < allTodos.length; i++) {
-                TodoList.push(allTodos[i].todo)
+            /* iterate through 'userTodos' - which is the "database information of every row of a certain id" 
+                If a particular row has the 'userId' that matches the 'id' of "users" table, push that to an array 
+            */
+            for (let i = 0; i < userTodos.length; i++) {
+                TodoList.push(userTodos[i].todo)
             }
 
             // render the 'dashboard' "view", with variables that you would like the view to have access to
