@@ -238,8 +238,17 @@ module.exports = function (sequelize, Sequelize) {
               We want the database to protect itself from the possibility of corrupted data
         */
 
+        /* 11. Added the 2nd param inside hasMany() to make "Not NULL? = yes" + CASCADE delete, for our FK
+            We set 'onDelete', because the default is "SET NULL", and we want it set to 'CASCADE' instead
+                Why? A FK with CASCADE delete means that if the a record in the parent table is deleted,
+                    the corresponding records in the child table will automatically be deleted!
+                    This is called "cascade delete" in an SQL server.
+                Example: If a user of "id" of 5 gets deleted off of the "users" table, ALL "todo" rows with a field 'userId' value of 5, will automatically get deleted inside "todos" table!
+                    This is very good! Thanks to the FK relationship between "users" 'id' and "todos" 'userId'
+            Thus, more security in our database
+            */
         UserExport.associate = (models) => {
-          UserExport.hasMany(models.todo)
+          UserExport.hasMany(models.todo, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
         }
 
     // Return the variable out of the function
