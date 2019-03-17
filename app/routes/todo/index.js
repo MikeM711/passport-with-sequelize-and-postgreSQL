@@ -62,5 +62,35 @@ router.post('/todoPOST',(req,res) => {
 
 })
 
+// Frontend HTML forms cannot send DELETE methods to backend router, this POST will handle a database DELETE
+// Any action that has '/delete/ + anyString' will enter this router, thanks to the colon ':'
+router.post('/delete/:id', (req,res) => {
+
+  // Execution is entering this handler in the form of a URL named: '/delete/{{someTodoId}}'
+  // We can grab values off of the URL using 'req.params'
+  // Because we wrote ':id' as the URL for this handler, this allows the 'id' variable to attach to req.params - thus, req.params.id 
+  // this 'id' has the value of WHATEVER comes after /delete/ in the URL  
+  const id = req.params.id
+
+  // Using Model.destroy({where: {field:value}}), we will delete that particular id off the database
+  todo.destroy({
+    where: {
+      id: id
+    }
+  })
+  // The following is not MANDATORY, but helps with safety!
+    .then((deletedItem) => {
+      if (deletedItem) {
+        res.redirect('/dashboard')
+      } else {
+        console.log('error: todo was not deleted inside database')
+      }
+    })
+    .catch((err) => {
+      console.log('there was an error in deleting your item: ', err)
+    })
+  
+})
+
 // always export our routers, so that routes/index.js knows what to do
 module.exports = router;

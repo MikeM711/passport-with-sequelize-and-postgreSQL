@@ -117,14 +117,25 @@ router.get('/dashboard', isLoggedIn, (req,res) => {
     })
         .then((userTodos) => {
 
-            // initialize an array
-            let TodoList = [];
+            // initialize an object
+            // 9. {todo: 'a todo', id: 'integer'}
+            let TodoList = {};
 
             /* iterate through 'userTodos' - which is the "database information of every row of a certain id" 
                 If a particular row has the 'userId' that matches the 'id' of "users" table, push that to an array 
             */
+
+           /* 9. We need to send the 'id' into the view, so that a user can delete a todo if they wish
+                A delete will work by sending a particular 'id' from the handlebars "view" to a router in the backend,
+                    where that router is responsible for deleting rows inside a database table using an 'id' to search */
             for (let i = 0; i < userTodos.length; i++) {
-                TodoList.push(userTodos[i].todo)
+                TodoList[i] = {
+                    // below to display todos
+                    todo: userTodos[i].todo,
+                    // below to add to all form 'action' URLs
+                    id: userTodos[i].id
+                }
+                // TodoList.push(userTodos[i].todo)
             }
 
             // render the 'dashboard' "view", with variables that you would like the view to have access to

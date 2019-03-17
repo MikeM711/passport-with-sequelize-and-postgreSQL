@@ -32,7 +32,32 @@
 
     <!-- 5.2 Use handlebars syntax to iterate through array, and display all of its items-->
     {{#each TodoList}}
-        <p>{{this}}</p>
+    <p>{{this.todo}}</p>
+    
+    <!-- 9. We want a button to make a request to the backend
+            We can accomplish this by wrapping the button with a form!
+        Remember: forms can only handle POST and GET requests
+            To delete a todo, the workaround would be to send a POST request, 
+                where we will delete a todo off a database table inside a router.post() in the backend
+        
+        The id of this particular todo is {{this.id}}
+
+        For handling a delete: we will redirect the execution (using 'action' attribute), with a particular todo 'id' inside the URL
+                We will have: 'action="/delete/{{someId}}"'
+            Inside the backend, we have a '/delete/:id' router, that router will recognize this /delete/ + (some id integer), thanks to the ':' colon,
+                and will allow execution to enter that '/delete/:id' handler!
+            Example: If 'todo' has id# 423: 
+                1. The action of 'action="/delete/{{someId}}"' will be 'action="/delete/423"'
+                2. We will enter the 'delete/:id' URL as 'delete/432'
+                3. Inside 'delete/:id' we will use req.params to look inside the URL
+                4. Because we said ':id' for the backend handler, this allows the 'id' variable to attach to the req.params as req.params.id = 423
+                5. Backend router has all of the necessary information to delete a particular todo off the database! Use Model.destroy(),
+                    with the correct where: location
+    -->
+    <form action="/delete/{{this.id}}" method="post">
+        <input type="submit" name="Delete Todo" value="Delete Todo" />
+    </form>
+    
     {{/each}}
 
     <!-- 
