@@ -41,9 +41,12 @@ module.exports = function (sequelize, Sequelize) {
     /* 7. (Option #2) Using sequelize "Associations", the below line will ALSO create a "userId" column inside "todos" table
       (Option #1) - found inside of "user" Model
     */
-      
+    
+    /* 11. Added the 2nd param inside belongsTo() to make "Not NULL? = yes", for our FK, and CASCADE delete (see user.js "model" for more info)
+        Thus, more security in our database */
+        
     //   TodoExport.associate = (models) => {
-    //     TodoExport.belongsTo(models.user)
+    //     TodoExport.belongsTo(models.user, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' })
     //   }
 
   // Return the variable out of the function
