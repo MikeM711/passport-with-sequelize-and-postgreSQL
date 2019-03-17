@@ -57,7 +57,15 @@
     <form action="/delete/{{this.id}}" method="post">
         <input type="submit" name="Delete Todo" value="Delete Todo" />
     </form>
-    
+    <br>
+
+    <!-- Just like DELETE, we will create a PUT request by making a POST request-->
+    <form method="post" action="/put/{{this.id}}">
+        <label for="todoEdit">Edit </label>
+        <input name="todoEdit" type="text"/>
+        <input type="submit" value="Edit Todo" />
+    </form>
+    <hr>
     {{/each}}
 
     <!-- 
