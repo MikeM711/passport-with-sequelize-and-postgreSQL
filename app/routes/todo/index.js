@@ -92,5 +92,45 @@ router.post('/delete/:id', (req,res) => {
   
 })
 
+// a POST request for PUT, very similar to a POST request for DELETE - HTML forms can only send GET and POST
+router.post('/put/:id', (req, res) => {
+
+  // The updated particular "todo", provided by the user on the "todo-edit" form, and its 'id'
+  const todoId = req.params.id
+  const todoContent = req.body.todoEdit
+
+  // Data object of the updated todo, to be sent into Model.update()
+  /* Below works without the userId param! 
+      Why? because Model.update() does not destroy the full database row, it simply overwrites the fields you explicitly say */
+  const updatedTodo = {
+    todo: todoContent,
+    // userId: userId
+  }
+
+  // Model.update({updatedTodo, where: {...}})
+  todo.update(updatedTodo, {
+    where: {
+      id: todoId
+    }
+  })
+    .then(([rowsUpdated]) => {
+      // If successful, promise returns a parameter of the number of rows updated
+      // the parameter is of type: array
+
+      // Extra security: if rowsUpdated = 1, redirect to dashboard
+      if(rowsUpdated === 1){
+        res.redirect('/dashboard')
+      } else {
+        console.log('no rows have been updated')
+      }
+ 
+    })
+    .catch((err) => {
+      console.log('Update Error: ', err)
+
+    })
+
+})
+
 // always export our routers, so that routes/index.js knows what to do
 module.exports = router;
