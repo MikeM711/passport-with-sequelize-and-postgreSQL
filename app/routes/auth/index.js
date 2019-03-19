@@ -202,7 +202,7 @@ router.get('/logout', (req, res) => {
         If it doesn't exist (undefined return): the username is unique, continue with strategy
         If it does exist (defined return): the username is taken, write done() with a defined param1 or param3 to jump out of strategy
             Param 1: shows blank page on 'POST' URL that displays the variable
-            Param 3: Immediately enter failureRedirect with a req.flash() message (if we choose to use it)
+            Param 3: If inside the Verify Callback Function - Immediately enter failureRedirect with a req.flash() message (if we choose to use it)
         No real need for a .catch(), because success happens if the search finds something, or it searches every row
             Maybe for the case of no database, we may need a catch()?
     7. The user has input a unique username - hash the password with bCrypt
@@ -217,7 +217,7 @@ router.get('/logout', (req, res) => {
             Thus, we passed all of our constraints and validations inside our model!
             I want to say that we have successfully added the user to the database at this point
         If failure: We have a database validation error - which we set up in our "model"
-            Supply done() a defined 1st param or 3rd param to exit out of this "passport system" as an error
+            Supply done() a defined 1st param (immediate error) or 3rd param (if in verify callback function - failureRedirect) to exit out of this "passport system" as an error
     10. Database addition of the new user is successful
         Supply done() with a defined 2nd param to let passport know that it can keep going
         That 2nd parameter of done() will be supplied to passport.serializeUser
@@ -254,7 +254,7 @@ router.post('/signupPOST', passport.authenticate('local-signup', {
     /* 4.2 Execution enters here when done() method is called inside deserialize, with a defined 2nd param
                 Here, execution will enter 'successRedirect', regardless if the user information is correct or not
                     The 2nd param is defined, that's all that matters to be SUCCESSFUL!
-            If we ever have a defined 3rd param: execution immediately enters here, under failureRedirect + req.flash() message (if we choose to use it)
+            If we ever have a defined 3rd param inside Verify Callback: execution immediately enters here, under failureRedirect + req.flash() message (if we choose to use it)
             If we ever have a defined 1st param, this "authenticate system of stages" will IMMEDIATELY quit out all of all "stages"
                 User will land on this URL '/signupPOST' with a blank page, rendering out the 1st param
         We get an instant failureRedirect if the user does not provide an email and password */
@@ -309,12 +309,70 @@ router.post('/signupPOST', passport.authenticate('local-signup', {
 */
 router.post('/signinPOST', passport.authenticate('local-signin', {
     // 4.7 The below occurs when done() method is called inside deserialize with a defined 1st or 2nd param
-        // defined 1st param = error (failure), defined 2nd param = user data (success)
+        // defined 1st param: error (failure), with 1st param loaded on browser on the URL where the execution is currently running
+        // defined 2nd param: defined 2nd param = user data (successRedirect)
+        // defined 3rd param inside Verify Callback = failureRedirect 
     successRedirect: '/dashboard',
     failureRedirect: '/signin',
     failureFlash: true
     }
 ));
+
+// 12.0 Authenticating request with Google OAuth
+
+// 12.0 (12.8) sign in with /auth/google - 1st param of .get()
+/* 12.8 Below router is responsible for showing the Google consent screen, and redirecting the user to the callback URL - '/auth/google/callback'
+    When we go to the route '/auth/google', we want Passport to take control, to interact with Google, and send execution to Google consent screen
+        2nd param of .get() - the callback to initialize will be passport's .authenticate() method
+    passport.authenticate:
+        1st param: Which strategy do we want to use to authenticate someone?
+            Ans: the 'new GoogleStrategy', which is recognized as simply 'google'
+        2nd param: declare 'scope' property inside an object
+            'scope' tells passport what we want to retrieve from the user’s profile, in an array
+                Do you want profile information? Emails? - More info about this in the Google API
+            We will set the scope to ['profile']
+    Complete:
+        When user enters '/auth/google' URL, passport will take control, using passport.authenticate()
+            Google Consent Screen, and will prompt the user with - "We want your profile information will you allow this app to get it?""
+*/
+router.get('/auth/google', passport.authenticate('google', {
+    scope:['profile']
+}));
+
+// 12.8 Callback route for Google to redirect to
+/* 12.8 The below router is responsible for handling the URL that '/auth/google' router has redirected us to (declared by passport.js - Google Strategy - 'callbackURL')
+    Without the below router, after we sign in, we get the message: "Cannot GET /auth/google/callback" 
+    If we say: (req,res) => {res.send('hello world')}, as the callback, we land on a page with a URL such as:
+        "http://localhost:5000/auth/google/callback?code=4%2FEAEhMLeFaUUwvntvtfdmm...""
+        This is a code that google is sending to us, we “Receive user details from provider (Google)”
+        We can access this code, and passsport can use this code to then grab the information that we want
+*/
+
+/* 12.9 This router will facilitate the exchange of code (in the URL) for profile information, before we enter the "Passport callback function" inside passport.js
+    We use passport.authenticate('google'), as an extra piece of middleware in this route
+        This same callback was used inside the '/auth/google' router, what's the difference?
+            Ans: The difference is, when execution reaches the callback, we have a code in the URL. Passport can see that we have that code!
+            Passport sees the code and it knows that the execution has ALREADY BEEN to the Consent Screen!
+        Execution goes straight to google and says: 
+            "I have this code, this user said we can authenticate them using their Google profile. 
+            So I’m here with my code, to get their profile information.” 
+        So [Google] grabs that profile information and comes back.
+            Before we enter our {redirects} - Google comes back with the profile information, the callback function is fired!
+        [EXECUTION ENTERS THE PASSPORT CALLBACK FUNCTION inside passport.js]
+    Redirects:
+        If we enter all done() methods with a defined 2nd param, we will end up with 'successRedirect'
+        If at any point execution enters a done() method with a defined 1st param, we immediately receive a blank screen with the 1st param displayed, on the URL that the execution was on
+        If we enter done() with a true/defined 3rd param in Verify Callback Function, we end up with 'failureRedirect'
+*/
+router.get( '/auth/google/callback', passport.authenticate( 'google', { 
+        successRedirect: '/dashboard',
+        failureRedirect: '/auth/google/failure'
+}));
+
+// If something goes wrong (failureRedirect - entering a done() with a defined 3rd param in the Verify Callback Function), we will be redirected to this URL
+router.get('/auth/google/failure', (req,res) => {
+    res.send('Authentication failure')
+})
 
 // We want app/routes/index.js to have access to our routes inside this file when it uses require()
 module.exports = router;

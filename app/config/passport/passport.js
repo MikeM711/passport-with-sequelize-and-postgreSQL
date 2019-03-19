@@ -14,7 +14,13 @@ module.exports = function (passport, user) {
     Set the instance to the variable: 'LocalStrategy' */
   const LocalStrategy = require('passport-local').Strategy;
 
-  // 4.2 serialize user - we enter here AFTER we called done() inside the "Verify Callback Function", with a DEFINED first or second parameter
+  // 12.0 - Import Google Strategy into application
+  const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
+
+  // 12.7 Import private keys from key.js inside "config" folder - we will '.gitignore' this file, and have the developer make it themselves for security purposes
+  const keys = require('../keys.js')
+
+  // 4.2 serialize user - we enter here AFTER we called done() inside the "Verify Callback Function", with a DEFINED second parameter
   // Serializing: This function will take a piece of information, from our record (database), and pass it on to "stuff it" in a cookie
 
   /* 
@@ -50,6 +56,8 @@ module.exports = function (passport, user) {
   */
  
   passport.serializeUser(function (user, done) {
+    // All of our strategies "dump" the execution into here, from the "Verify Callback Function" of our strategies
+    // We enter here due to done() having a defined 2nd param, inside the "Verify Callback Function" of one of our strategies 
 
     /* user is a big unorganized blob of database information
       We only want to grab a PIECE of identifying information from that user - Just the ID
@@ -63,6 +71,8 @@ module.exports = function (passport, user) {
           Makes sense - cookie has not been created yet
           On refresh, the site will work as if the user has not logged in
       */
+     
+    // if 'done(null, false, true)' - messy URL + "Error: Failed to serialize user into session"
     done(null, user.id);
   });
 
@@ -82,7 +92,7 @@ module.exports = function (passport, user) {
     User.findById(id).then(function (user) {
 
       /* If 'user' is found in the database, use the done() method to go to the next stage of passport
-          The only way to go to the next stage is if either the 1st or 2nd parameter is defined
+          The only way to go to the next stage is if either the 2nd parameter is defined
         Inside the done() 
           Param1: No error to report - so pass in 'null'
             If string was passed into Param1, it will render to that screen on the POST URL
@@ -101,6 +111,9 @@ module.exports = function (passport, user) {
           We just can't receive proper user information that way */
         // When done() is called with a defined second parameter, we enter the OBJECT of the local strategy in our route
         // WHATEVER IS THE 2ND PARAMETER IS = 'req.user' in "routes"
+
+        /* If 'done(null, false, true)' - we land on /signin# (even with Google OAuth)
+          Most likely because we enter the 'isLoggedInFunction' inside "routes", and if we are not authenticated, we get redirected to '/signin'*/
         done(null, user.get());
       } else {
         done(user.errors, null);
@@ -187,12 +200,13 @@ module.exports = function (passport, user) {
             Therefore, this information CANNOT be used, as it is taken */
 
           /* done() supplies Passport with the user (2nd param) that authenticated.
-            Inside passport, the function done() (if the 1st or 2nd param is defined) basically means "go to the next stage"
+            Inside passport, the function done() (2nd param is defined) basically means "go to the next stage"
             In our case, we will supply with 'false' (2nd param), indicating authentication failure
               Along with that, we will display a flash message prompting the user to try again
             1st param is typically 'null'
               1st param is actually the error, if there is one
-              If 1st param is a string, the URL will render that string to the user on the browser
+              If 1st param is a string, the URL will render that string to the user on the browser at whatever URL execution is currently on (NOT FAILURE-REDIRECT)
+            * A defined (or true) 3rd param in this Verify Callback Function = failureRedirect!
           */
          
           return done(null, false, {
@@ -268,10 +282,10 @@ module.exports = function (passport, user) {
               */
               if (newUser) {
                 /* At this point, this user has valid credentials
-                  done() supplies Passport with the user that authenticated - The 'newUser' "row information"
+                  done() supplies Passport ('serializeUser') with the user that authenticated (2nd param) - The 'newUser' "row information"
                 */
                /* After calling done() with a DEFINED second parameter - the next stage is to serialize the user
-                Execution will enter passport.serialize after this return (4.2)
+                Execution will enter passport.serializeUser after this return (4.2)
                   Theory: execution will also enter if 1st param was definined (an error)
                */
                 return done(null, newUser);
@@ -296,7 +310,7 @@ module.exports = function (passport, user) {
                 This time, we actually get to the 'failureRedirect', unlike 1), and we have extra req info that we can use as well!
             */
             done(null, false, req.flash('messages','error, signup is incorrect!'));
-            // After the above 'done()', execution will immediately end up inside the '/signinPOST' handler as "failureRedirect"
+            // After the above 'done()', execution will immediately end up inside the '/signinPOST' handler as "failureRedirect" !!!
 
           })
 
@@ -371,4 +385,117 @@ module.exports = function (passport, user) {
       });
     }
   ));
+
+    // 12.0 GOOGLE OAUTH 2.0 STRATEGY
+
+    // 12.0 copy/paste from passport site
+  passport.use(new GoogleStrategy({
+    // 12.7 1st param: Options for google strategy - Created for us in "Console Developers" in Google, and enablied the Google+ API
+    clientID: keys.google.clientID,
+    clientSecret: keys.google.clientSecret,
+    // 12.8 do not put in "localhost" for callback URL, put in the URL PATH relative to where the application is served
+    callbackURL: "/auth/google/callback",
+    passReqToCallback: true
+  },
+    /* 12.9 2nd param: Passport callback function
+        This is the function that fires when execution comes back with the actual information about the profile from Google 
+        Index.js in "routes" - In that picture from Net Ninja - that piece of middleware, passport.authenticate(), belongs to the stage: 
+          “get code from google in the redirect URI”. 
+          Execution goes out and grabs in the info “exchange code for profile info”, 
+            and “FIRES the Passport callback function” upon entry to the application in this file - passport.js, before we execute the redirects.
+        If this passport callbackfunction was not filled - Our Google Consent Screen would be "hanging", browser-side
+    */
+
+    /* 12.9 Passpport callback function params: Copy/paste from Google OAuth 2.0 strategy
+  
+      1. request
+        AKA req, we can use this because of bodyParser
+      2. accessToken
+        A token we receive from google - so that if we want to go back and, maybe, alter the user’s profile, 
+            (ie: go into their mailbox, read their emails), we can use that access token to that
+          Because we got it from Google
+          The user granted us permission to that on the Consent Screen
+        Won’t really be used in our tutorial
+      3. refreshToken
+        To refresh the accessToken, because the accessToken expires after a certain amount of time 
+        Won’t really be used in our tutorial
+      4. profile
+        The profile information that passport comes back with when it takes that code to Google (in index.js in "routes"), 
+            (that URL code) and it BRINGS BACK that profile information [from Google].
+        * If we console.log this inside here, we get stuff like -  unique Google ID, display name, name, family name,
+          photos/avatar, gender (if used), json object with more information '_json:  {...}'
+      5. done 
+        A function we need to call when we are done with this callback function
+    */
+
+    function (request, accessToken, refreshToken, profile, done) {
+      // We are only using the 'profile' and 'done' params in this callback as of 12.15+
+
+      //console.log(profile)
+
+      const googleId = profile.id
+      const username = profile.displayName
+
+      // 12.12/12.13 - Is the user's unique Google id in our database?
+      User.findOne({
+        where: {
+          googleId: googleId
+        }
+      })
+        .then((user) => {
+
+          // If user exists, enter 'serializeUser'
+          if(user){
+            console.log('user exists!')
+            
+            // 12.15+ - Return existing user to 'serializeUser'
+            // If 'return done(null, false, true)' = failureRedirect
+            // If 'return done(true, false)' = messy URL + 'true' on blank page
+            return done(null, user);
+          }
+
+          /* If the user doesn't exist, make a record of them, their Google ID, and other Google profile information you wish to grab
+            We plan to store this information on our own database */
+          if(!user){
+            console.log(" user doesn't exist!")
+
+            // data to be stored on our own database about the particular user, represented by a "database row"
+            const data = {
+              username: username,
+              googleId: googleId
+            }
+
+            //12.12/12.13 - If Google ID is not found, create the ID and its user in our own database
+            User.create(data)
+              .then((newUser) => {
+                console.log('User has been successfully added to database: ', newUser)
+                /*
+                Send one piece of identifying information that we can use from the particular user’s record
+                  Question: Can we send the googleId into the cookie?
+                    Answer: No. Not everyone who signs up to our application will have a Google ID. 
+                      Only people who login or signup with Google will have that property. 
+                      Other people may have a facebook ID, or github ID.
+                  Instead, use the ID of our “users” table, the primaryKey - AKA the ID of our "user" from our OWN database
+                    Much ike we did with the 'local' authentication
+                */
+
+                // 12.15+ - Return the "newly-added user" in the database, to 'serializeUser'
+                return done(null, newUser);
+
+              })
+              .catch((err) => {
+                console.log('User was not added to the database: ', err)
+              })
+
+          }
+
+          // if user doesn't exist, do something
+        })
+        .catch((err) => {
+          console.log('Failed to search for user in database: ', err)
+        })
+
+    }
+  ));
+
 }

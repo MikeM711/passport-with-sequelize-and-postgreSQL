@@ -9,7 +9,9 @@
     <h2>Dashboard</h2>
     <h5>Hurray! you are logged in.</h5>
     <!-- Object passed from the second parameter of res.render() in "routes"-->
-    <h1>{{user.firstname}}</h3>
+    <!-- 12.15+ Our "users" table that now carries "Google OAuth" stuff.
+        We store Google usernames inside of a field called "username" -->
+    <h1>Hello - Google User: {{user.username}}</h3>
     <a href="/logout" class="button">Want to logout?</a>
 
     <!-- 5.2 Send a todo to the database, and list them out below-->
