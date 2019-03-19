@@ -1,0 +1,18 @@
+(12.7) This is what the ignore file looks like:
+
+// add this file to .gitignore
+
+/*
+.gitignore example: app/config/keys.js, where .gitignore is inside “root”
+  We simply just put in the address relative to where .gitignore is located
+*/
+
+// Use this file to store information you want to keep private - such as google clientID/secret
+
+// export an object
+module.exports = {
+  google: {
+    clientID: "client_id_from_google.apps.googleusercontent.com",
+    clientSecret:"client_secret_from_google"
+  }
+}
