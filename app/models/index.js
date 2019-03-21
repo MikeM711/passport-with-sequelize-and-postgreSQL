@@ -15,12 +15,14 @@ var Sequelize = require('sequelize');
 var basename = path.basename(__filename);
 var env = process.env.NODE_ENV || 'development';
 
-// Heroku - Initialize sequelize with heroku postgres - the actual address comes from the DATABASE_URL environment variable
+/* Heroku - Initialize sequelize with heroku postgres - the actual address comes from the DATABASE_URL environment variable
+  This was copy/paste'd from sequelize docs for "Heroku"
+  Used "if" statement, so we can choose to run the same code locally ("development"), if we want to
+  Make sure to write: "use_env_variable": "DATABASE_URL" inside config.json "production", and "postgres" as "dialect" (latter not mandatory)
+*/
 
-// Used "if" statement, so we can choose to run the same code locally, if we want to
-// COPY/PASTE FROM SEQUELIZE DOCS
 if (process.env.DATABASE_URL) {
-  // the application is executed on Heroku ... use the Heroku Database - postgres
+  // the application is executed on Heroku ... use the particular Heroku Database, postgres
   var sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     protocol: 'postgres',

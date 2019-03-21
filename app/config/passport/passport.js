@@ -19,12 +19,14 @@ module.exports = function (passport, user) {
 
   // 12.7 Import private keys from key.js inside "config" folder - we will '.gitignore' this file, and have the developer make it themselves for security purposes
 
-  /* HEROKU: If localhost - require keys.js | If Heroku - DON'T require keys.js */
-  // keys.js - figure out what set of credentials to return
+  /* HEROKU: 
+    If localhost - require keys.js | If Heroku - DON'T require keys.js 
+  */
+  // figure out what set of credentials to return based on how this program is being ran: development/test/production
   if (process.env.NODE_ENV === 'production') {
     // Execution is in production
   } else {
-    // Execution in development - return the dev keys
+    // Execution in development/test - return the dev keys
     // We will use 'var' because, unlike 'const/let', 'var' is not limited to block scope {...}
     var keys = require('../keys.js')
   }
@@ -400,10 +402,11 @@ module.exports = function (passport, user) {
     /* Heroku - Environment Variables
       When we create this application on Heroku, we want our Heroku and Github repos to have synced code
         That being said, our "keys.js" file MUST be ignorned for BOTH Github and Heroku repos
-      Locally: we get our keys from key.js
-      Heroku: we get our keys from settings > config vars
-        1. write: process.env.ENVIRONMENT_VARIABLE
-        2. Inside Heroku: set a value for 'ENVIRONMENT_VARIABLE'
+      Locally: we get our keys from keys.js
+        Developer must create the keys.js file to run this application locally
+      Heroku: we get our keys from settings > config vars, and write the values in the Heroku website of our specific Heroku application
+        1. In code: process.env.ENVIRONMENT_VARIABLE
+        2. Inside Heroku website: set a value for this 'ENVIRONMENT_VARIABLE' inside "config vars"
       We will put BOTH key-location options inside ONE variable
         Ex: const EnvOrLocalKey = process.env.GOOGLE_CLIENT_KEY || keys.google.clientID
         The 'Environment Variable' must come first!
@@ -415,10 +418,12 @@ module.exports = function (passport, user) {
     // 12.0 copy/paste from passport site
   passport.use(new GoogleStrategy({
     // 12.7 1st param: Options for google strategy - Created for us in "Console Developers" in Google, and enabled the Google+ API
+
     /* Heroku 
-      The value of Google clientID and clientSecret properties is set to the variable that holds both key-location options
-      Heroku NEEDS to identify these values as a string, so use backticks (``) and backtick syntax: `${variable_in_a_string}`
+      The value of Google 'clientID' and 'clientSecret' properties is set to the variable that holds both key-location options
+        Heroku NEEDS to identify these values as a string, so use backticks (``) and backtick syntax: `${variable_in_a_string}`
     */
+
     clientID: `${clientIdKey}`,
     clientSecret: `${clientSecretKey}`,
     // 12.8 do not put in "localhost" for callback URL, put in the URL PATH relative to where the application is served
