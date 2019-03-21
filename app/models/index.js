@@ -14,6 +14,20 @@ var path = require('path');
 var Sequelize = require('sequelize');
 var basename = path.basename(__filename);
 var env = process.env.NODE_ENV || 'development';
+
+// Initialize sequelize with heroku postgres - the actual address comes from the DATABASE_URL environment variable
+// FIXED WITH IF STATEMENT TO RUN LOCALLY!!!
+if (process.env.DATABASE_URL) {
+  var sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    protocol: 'postgres',
+    dialectOptions: {
+      ssl: true
+    }
+  });
+}
+ 
+
 /* 
 1.3 our config.json file path
   The below file, config.json, was copied from Sequelize Docs (Migration Configuration page) 

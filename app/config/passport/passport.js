@@ -19,12 +19,13 @@ module.exports = function (passport, user) {
 
   // 12.7 Import private keys from key.js inside "config" folder - we will '.gitignore' this file, and have the developer make it themselves for security purposes
 
-  /* If localhost - require keys.js | If Heroku - DON'T require keys.js */
+  /* HEROKU: If localhost - require keys.js | If Heroku - DON'T require keys.js */
   // keys.js - figure out what set of credentials to return
   if (process.env.NODE_ENV === 'production') {
-    // we are in production - return the prod set of keys
+    // Execution is in production
   } else {
-    // we are in development - return the dev keys!!
+    // Execution in development - return the dev keys
+    // We will use 'var' because, unlike 'const/let', 'var' is not limited to block scope {...}
     var keys = require('../keys.js')
   }
 
