@@ -388,11 +388,30 @@ module.exports = function (passport, user) {
 
     // 12.0 GOOGLE OAUTH 2.0 STRATEGY
 
+    /* Heroku - Environment Variables
+      When we create this application on Heroku, we want our Heroku and Github repos to have synced code
+        That being said, our "keys.js" file MUST be ignorned for BOTH Github and Heroku repos
+      Locally: we get our keys from key.js
+      Heroku: we get our keys from settings > config vars
+        1. write: process.env.ENVIRONMENT_VARIABLE
+        2. Inside Heroku: set a value for 'ENVIRONMENT_VARIABLE'
+      We will put BOTH key-location options inside ONE variable
+        Ex: const EnvOrLocalKey = process.env.GOOGLE_CLIENT_KEY || keys.google.clientID
+        The 'Environment Variable' must come first!
+          If there is no 'Environment Variable' (situation: localhost), check for keys inside keys.js
+    */
+    const clientIdKey = process.env.GOOGLE_CLIENT_KEY || keys.google.clientID
+    const clientSecretKey = process.env.GOOGLE_SECRET_KEY || keys.google.clientSecret
+
     // 12.0 copy/paste from passport site
   passport.use(new GoogleStrategy({
-    // 12.7 1st param: Options for google strategy - Created for us in "Console Developers" in Google, and enablied the Google+ API
-    clientID: keys.google.clientID,
-    clientSecret: keys.google.clientSecret,
+    // 12.7 1st param: Options for google strategy - Created for us in "Console Developers" in Google, and enabled the Google+ API
+    /* Heroku 
+      The value of Google clientID and clientSecret properties is set to the variable that holds both key-location options
+      Heroku NEEDS to identify these values as a string, so use backticks (``) and backtick syntax: `${variable_in_a_string}`
+    */
+    clientID: `${clientIdKey}`,
+    clientSecret: `${clientSecretKey}`,
     // 12.8 do not put in "localhost" for callback URL, put in the URL PATH relative to where the application is served
     callbackURL: "/auth/google/callback",
     passReqToCallback: true

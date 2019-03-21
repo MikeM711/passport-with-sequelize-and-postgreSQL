@@ -1,0 +1,12 @@
+Create Heroku Application
+
+Terminal commands:
+1. heroku login (If email pops up, just click enter... then put in password)
+2. git init	
+3. git add .
+4. git commit -m "deploying"
+5. heroku create appname 
+    - heroku create alone will create a random name for you
+    - Creates the repository, viewed using git remote -v
+6. git push heroku master	
+7. heroku open	
