@@ -18,7 +18,15 @@ module.exports = function (passport, user) {
   const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 
   // 12.7 Import private keys from key.js inside "config" folder - we will '.gitignore' this file, and have the developer make it themselves for security purposes
-  const keys = require('../keys.js')
+
+  /* If localhost - require keys.js | If Heroku - DON'T require keys.js */
+  // keys.js - figure out what set of credentials to return
+  if (process.env.NODE_ENV === 'production') {
+    // we are in production - return the prod set of keys
+  } else {
+    // we are in development - return the dev keys!!
+    var keys = require('../keys.js')
+  }
 
   // 4.2 serialize user - we enter here AFTER we called done() inside the "Verify Callback Function", with a DEFINED second parameter
   // Serializing: This function will take a piece of information, from our record (database), and pass it on to "stuff it" in a cookie
