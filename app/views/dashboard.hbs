@@ -62,9 +62,10 @@
     <br>
 
     <!-- Just like DELETE, we will create a PUT request by making a POST request-->
+    <!-- 'required' so I'm not sending out an empty edit form = hanging application-->
     <form method="post" action="/put/{{this.id}}">
         <label for="todoEdit">Edit </label>
-        <input name="todoEdit" type="text"/>
+        <input name="todoEdit" type="text" required/>
         <input type="submit" value="Edit Todo" />
     </form>
     <hr>

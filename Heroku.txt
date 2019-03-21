@@ -1,0 +1,67 @@
+Step 1 - 2 = locally running application
+
+3. Create clientID and clientSecret Environment variables inside application
+    - Environment Variable Syntax: 'process.env.ENVIRONMENT_VARIABLE'
+    - Have a variable that stores either an environment variable OR local variable
+    - Store variable as string, using backtics `` and backtic syntax: `${variable_in_string}`
+
+4. Configure 'require('../keys.js')' so that production doesn't come across the particular module require
+    - Use "process.env.NODE_ENV === 'production' " check
+
+5. Install mysql2
+    - Because Heroku wants you to - prepares Heroku Application
+
+=====================================
+
+6. Create Heroku Application
+
+Terminal commands:
+1. heroku login (If email pops up, just click enter... then put in password)
+2. git init	
+3. git add .
+4. git commit -m "deploying"
+5. heroku create appname 
+    - heroku create alone will create a random name for you
+    - Creates the repository, viewed using git remote -v
+6. git push heroku master	
+7. heroku open
+
+6. Result = Broken application
+=====================================
+
+7. Add Environment variables/values to Heroku "config vars"
+    - These variables/values will take the spot of: 'process.env.ENVIRONMENT_VARIABLE' in our code
+
+7. Result = Application view works, Google screen gets 400 Error
+
+8. Configure "Google Console Developers" for Heroku Application
+    - Authorize Heroku domain (credentials > OAuth consent screen)
+        Nothing that indicates a path
+            Ex: handlebars-postgres-todo-app.herokuapp.com
+    - Set up Heroku "Origin" and "Redirect URI" paths
+        Use HTTP not HTTPS:
+            Ex: Origin: http://handlebars-postgres-todo-app.herokuapp.com
+            Ex: Redirect URI: http://handlebars-postgres-todo-app.herokuapp.com/auth/google/callback
+
+8. Result = View works, but we don't reach "Google Consent Screen" OR "Google Error Screen"
+    - Console "heroku logs --tail" shows us some for of sequeilze error
+
+9. Set up Heroku Database
+    - Write in terminal: heroku addons:add heroku-postgresql
+        We get a Heroku-postgres database in our "resources" on Heroku webiste
+        We get a config var: DATABASE_URL and a value for that environment variable 
+    - Edit config.json for "production"
+        Add: "use_env_variable": "DATABASE_URL"
+        Add: "postgres" as the "dialect" (not mandatory)
+    - Inside model, below our imports, write the following:
+
+            if (env === 'production') {
+              var sequelize = new Sequelize(process.env.DATABASE_URL, {
+              dialect: 'postgres',
+              protocol: 'postgres',
+              });
+            }
+
+    - Reference: https://sequelize.readthedocs.io/en/1.7.0/articles/heroku/
+
+10. APPLICATION SHOULD BE SUCCESSFUL
