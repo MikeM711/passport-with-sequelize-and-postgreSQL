@@ -19,7 +19,7 @@ module.exports = function (passport, user) {
 
   // 12.7 Import private keys from key.js inside "config" folder - we will '.gitignore' this file, and have the developer make it themselves for security purposes
 
-  const keys = require('../keys.js') || 'production'
+  const keys = require('../keys.js') || null
   // /* HEROKU: If localhost - require keys.js | If Heroku - DON'T require keys.js */
   // // keys.js - figure out what set of credentials to return
   // if (process.env.NODE_ENV === 'production') {
