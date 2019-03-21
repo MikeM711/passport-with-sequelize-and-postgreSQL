@@ -1,4 +1,9 @@
-Create Heroku Application
+1. Install mysql2
+    - Because Heroku wants you to
+
+=====================================
+
+2. Create Heroku Application
 
 Terminal commands:
 1. heroku login (If email pops up, just click enter... then put in password)
