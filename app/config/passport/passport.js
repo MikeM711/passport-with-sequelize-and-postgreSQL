@@ -19,16 +19,15 @@ module.exports = function (passport, user) {
 
   // 12.7 Import private keys from key.js inside "config" folder - we will '.gitignore' this file, and have the developer make it themselves for security purposes
 
-  const keys = require('../keys.js') || null
-  // /* HEROKU: If localhost - require keys.js | If Heroku - DON'T require keys.js */
-  // // keys.js - figure out what set of credentials to return
-  // if (process.env.NODE_ENV === 'production') {
-  //   // Execution is in production
-  // } else {
-  //   // Execution in development - return the dev keys
-  //   // We will use 'var' because, unlike 'const/let', 'var' is not limited to block scope {...}
-  //   var keys = require('../keys.js')
-  // }
+  /* HEROKU: If localhost - require keys.js | If Heroku - DON'T require keys.js */
+  // keys.js - figure out what set of credentials to return
+  if (process.env.NODE_ENV === 'production') {
+    // Execution is in production
+  } else {
+    // Execution in development - return the dev keys
+    // We will use 'var' because, unlike 'const/let', 'var' is not limited to block scope {...}
+    var keys = require('../keys.js')
+  }
 
   // 4.2 serialize user - we enter here AFTER we called done() inside the "Verify Callback Function", with a DEFINED second parameter
   // Serializing: This function will take a piece of information, from our record (database), and pass it on to "stuff it" in a cookie
