@@ -172,7 +172,7 @@ Use app.get() to "match and handle a specific route when requested"
 */
 
 app.get('/introduction', (req, res) => {
-    res.send('Welcome to Passport with Sequelize');
+    res.send('Welcome to Passport with Sequelize. Heroku is set up!');
 });
 
 // 5.2 New home page that has 'sign in' and 'sign up' anchor tags - just to make things easier

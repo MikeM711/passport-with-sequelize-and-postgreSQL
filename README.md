@@ -11,6 +11,7 @@ I have expanded upon this tutorial, with:
 - A Full CRUD application that features a todo list
   - Todo list displays only the todos that a particular user has created
 - Now uses Google OAuth 2.0!
+- Check out this application on [Heroku](http://handlebars-postgres-todo-app.herokuapp.com/)
 
 ## Installation
 
@@ -42,3 +43,17 @@ module.exports = {
 }
 ```
 6. Run application: `npm run dev` to run nodemon
+
+## Heroku Setup
+
+Steps to go from Local Application => Web Application:
+- Create `clientID` and `clientSecret` Environment variables inside application
+  - These properties should have values of type `String` inside the code
+- Configure `require('../keys.js')` so that `production` doesn't come across the particular module `require()`
+- Install `mysql2`
+- Create Heroku Application
+- Add Environment variable values to Heroku `config vars`
+- Configure "Google Console Developers" for Heroku Application
+  - Authorize Heroku Domain, setup Heroku "Origin" and "Redirect URI" paths
+- Set up Heroku Database - Postgres inside code & Heroku
+- Heroku Application should be complete - view `Heroku.txt` inside `root` for more details

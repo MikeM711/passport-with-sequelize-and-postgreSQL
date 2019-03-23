@@ -29,7 +29,7 @@ Terminal commands:
 6. Result = Broken application
 =====================================
 
-7. Add Environment variables/values to Heroku "config vars"
+7. Add Environment variable values to Heroku "config vars"
     - These variables/values will take the spot of: 'process.env.ENVIRONMENT_VARIABLE' in our code
 
 7. Result = Application view works, Google screen gets 400 Error
